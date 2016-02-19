@@ -18,14 +18,19 @@ package db
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 var database *sql.DB
 
-func Init(user string, pass string, schema string) (*sql.DB, error) {
+const (
+	// TODO(remy):
+	CONN_STRING = `host=/var/run/postgresql sslmode=disable user=postgres`
+)
+
+func Init() (*sql.DB, error) {
 	// Init Mysql DB
-	dbLink, err := sql.Open("mysql", user+":"+pass+"@/"+schema+"?parseTime=True")
+	dbLink, err := sql.Open("postgres", CONN_STRING)
 	if err != nil {
 		return nil, err
 	}

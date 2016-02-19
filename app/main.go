@@ -17,27 +17,28 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
+	"time"
+
 	"./content"
 	"./db"
-	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/jsgoecke/go-wit"
 	"github.com/robfig/cron"
-	"math/rand"
-	"time"
 )
 
-var api *anaconda.TwitterApi
+var bite *anaconda.TwitterApi
 var witclient *wit.Client
 
 func main() {
 	// Init Twitter API
 	anaconda.SetConsumerKey(CONSUMER_KEY)
 	anaconda.SetConsumerSecret(CONSUMER_SECRET)
-	api = anaconda.NewTwitterApi(TOKEN, TOKEN_SECRET)
+	bite = anaconda.NewTwitterApi(TOKEN, TOKEN_SECRET)
 
 	// Init DB
-	database, err := db.Init(MYSQL_USER, MYSQL_PASSWORD, MYSQL_SCHEMA)
+	database, err := db.Init()
 	if err != nil {
 		panic(err.Error())
 	}

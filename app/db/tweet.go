@@ -31,7 +31,7 @@ const (
 )
 
 func (tweet Tweet) Persist() error {
-	stmtIns, err := database.Prepare("INSERT INTO " + _TABLE_TWEET + "(content, date) VALUES( ?, ? )")
+	stmtIns, err := database.Prepare("INSERT INTO " + _TABLE_TWEET + "(content, date) VALUES( $1, $2 )")
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (tweet Tweet) Persist() error {
 }
 
 func HasTweetWithContent(content string) (bool, error) {
-	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_TWEET + " WHERE content LIKE ? LIMIT 1")
+	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_TWEET + " WHERE content LIKE $1 LIMIT 1")
 	if err != nil {
 		return true, err
 	}
@@ -61,7 +61,7 @@ func HasTweetWithContent(content string) (bool, error) {
 }
 
 func GetNumberOfTweetsBetweenDates(from time.Time, to time.Time) (int, error) {
-	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_TWEET + " WHERE date >= ? AND date <= ? LIMIT 1")
+	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_TWEET + " WHERE date >= $1 AND date <= $2 LIMIT 1")
 	if err != nil {
 		return 0, err
 	}

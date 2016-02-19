@@ -18,10 +18,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/ChimeraCoder/anaconda"
-	"github.com/jsgoecke/go-wit"
 	"math/rand"
 	"strings"
+
+	"github.com/ChimeraCoder/anaconda"
+	"github.com/jsgoecke/go-wit"
 )
 
 const (

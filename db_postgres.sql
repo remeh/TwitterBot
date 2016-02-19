@@ -1,18 +1,26 @@
+-- Database init
+CREATE USER jose WITH UNENCRYPTED PASSWORD 'jose';
+CREATE DATABASE "jose";
+GRANT ALL ON DATABASE "jose" TO "jose";
+
+-- Switch to the audiences db as the audiences user.
+\connect "jose";
+set role "jose";
 --
 -- Table structure for table "follow"
 --
 
 CREATE TABLE "follow" (
   "id" SERIAL PRIMARY KEY,
-  "userId" BIGINT NOT NULL,
-  "userName" varchar(100) NOT NULL,
+  "userid" BIGINT NOT NULL,
+  "username" varchar(100) NOT NULL,
   "status" text,
-  "followDate" TIMESTAMP WITH TIME ZONE NOT NULL,
-  "unfollowDate" TIMESTAMP WITH TIME ZONE DEFAULT NULL,
-  "lastAction" TIMESTAMP WITH TIME ZONE NOT NULL
+  "followdate" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "unfollowdate" TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+  "lastaction" TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE INDEX ON "follow" ("userId");
+CREATE INDEX ON "follow" ("userid");
 
 --
 -- Table structure for table "tweet"
@@ -32,15 +40,15 @@ CREATE INDEX ON "tweet" ("content");
 
 CREATE TABLE "reply" (
   "id" SERIAL PRIMARY KEY,
-  "userId" BIGINT NOT NULL,
-  "userName" VARCHAR(100) NOT NULL,
-  "tweetId" BIGINT NOT NULL,
+  "userid" BIGINT NOT NULL,
+  "username" VARCHAR(100) NOT NULL,
+  "tweetid" BIGINT NOT NULL,
   "status" TEXT NOT NULL,
   "answer" TEXT NOT NULL,
-  "replyDate" TIMESTAMP WITH TIME ZONE NOT NULL
+  "replydate" TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE INDEX ON "reply" ("tweetId");
+CREATE INDEX ON "reply" ("tweetid");
 
 --
 -- Table structure for table "favorite"
@@ -48,11 +56,11 @@ CREATE INDEX ON "reply" ("tweetId");
 
 CREATE TABLE "favorite" (
   "id" SERIAL PRIMARY KEY,
-  "userId" BIGINT NOT NULL,
-  "userName" VARCHAR(100) NOT NULL,
-  "tweetId" BIGINT NOT NULL,
+  "userid" BIGINT NOT NULL,
+  "username" VARCHAR(100) NOT NULL,
+  "tweetid" BIGINT NOT NULL,
   "status" TEXT NOT NULL,
-  "favDate" TIMESTAMP WITH TIME ZONE NOT NULL,
-  "unfavDate" TIMESTAMP WITH TIME ZONE NULL,
-  "lastAction" TIMESTAMP WITH TIME ZONE NOT NULL
+  "favdate" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "unfavdate" TIMESTAMP WITH TIME ZONE NULL,
+  "lastaction" TIMESTAMP WITH TIME ZONE NOT NULL
 );

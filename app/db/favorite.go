@@ -18,7 +18,8 @@ package db
 
 import (
 	"database/sql"
-	"github.com/go-sql-driver/mysql"
+	//"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -42,9 +43,9 @@ func (fav Favorite) Persist() error {
 	var err error
 
 	if fav.id == 0 {
-		stmtIns, err = database.Prepare("INSERT INTO " + _TABLE_FAVORITE + "(userId, userName, tweetId, status, favDate, unfavDate, lastAction) VALUES( ?, ?, ?, ?, ?, ?, ?)")
+		stmtIns, err = database.Prepare("INSERT INTO " + _TABLE_FAVORITE + "(userId, userName, tweetId, status, favDate, unfavDate, lastAction) VALUES( $1, $2, $3, $4, $5, $6, $7 )")
 	} else {
-		stmtIns, err = database.Prepare("UPDATE " + _TABLE_FAVORITE + " SET userId = ?, userName = ?, tweetId = ?, status = ?, favDate = ?, unfavDate = ?, lastAction = ? WHERE id = ?")
+		stmtIns, err = database.Prepare("UPDATE " + _TABLE_FAVORITE + " SET userId = $1, userName = $2, tweetId = $3, status = $4, favDate = $5, unfavDate = $6, lastAction = $7 WHERE id = $8")
 	}
 
 	if err != nil {
@@ -53,7 +54,7 @@ func (fav Favorite) Persist() error {
 
 	defer stmtIns.Close()
 
-	unfavDate := mysql.NullTime{Time: fav.UnfavDate, Valid: !fav.UnfavDate.IsZero()}
+	unfavDate := pq.NullTime{Time: fav.UnfavDate, Valid: !fav.UnfavDate.IsZero()}
 
 	if fav.id == 0 {
 		_, err = stmtIns.Exec(fav.UserId, fav.UserName, fav.TweetId, fav.Status, fav.FavDate, unfavDate, time.Now())
@@ -65,7 +66,7 @@ func (fav Favorite) Persist() error {
 }
 
 func HasAlreadyFav(tweetId int64) (bool, error) {
-	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_FAVORITE + " WHERE tweetId = ? LIMIT 1")
+	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_FAVORITE + " WHERE tweetId = $1 LIMIT 1")
 	if err != nil {
 		return true, err
 	}
@@ -85,7 +86,7 @@ func HasAlreadyFav(tweetId int64) (bool, error) {
 func GetNotUnfavorite(maxFavDate time.Time, limit int) ([]Favorite, error) {
 	favs := make([]Favorite, 0)
 
-	stmtOut, err := database.Prepare("SELECT * FROM " + _TABLE_FAVORITE + " WHERE unfavDate IS NULL AND favDate <= ? ORDER BY lastAction LIMIT ?")
+	stmtOut, err := database.Prepare("SELECT * FROM " + _TABLE_FAVORITE + " WHERE unfavDate IS NULL AND favDate <= $1 ORDER BY lastAction LIMIT $2")
 	if err != nil {
 		return favs, err
 	}
@@ -118,7 +119,7 @@ func mapFav(rows *sql.Rows) (Favorite, error) {
 	var tweetId int64
 	var status string
 	var favDate time.Time
-	var unfavDate mysql.NullTime
+	var unfavDate pq.NullTime
 	var lastAction time.Time
 
 	err := rows.Scan(&id, &userId, &userName, &tweetId, &status, &favDate, &unfavDate, &lastAction)

@@ -35,7 +35,7 @@ const (
 )
 
 func (reply Reply) Persist() error {
-	stmtIns, err := database.Prepare("INSERT INTO " + _TABLE_REPLY + "(userId, userName, tweetId, status, answer, replyDate) VALUES( ?, ?, ?, ?, ?, ? )")
+	stmtIns, err := database.Prepare("INSERT INTO " + _TABLE_REPLY + "(userId, userName, tweetId, status, answer, replyDate) VALUES( $1, $2, $3, $4, $5, $6 )")
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (reply Reply) Persist() error {
 }
 
 func HasAlreadyReplied(tweetId int64) (bool, error) {
-	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_REPLY + " WHERE tweetId = ? LIMIT 1")
+	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_REPLY + " WHERE tweetId = $1 LIMIT 1")
 	if err != nil {
 		return true, err
 	}
