@@ -25,7 +25,7 @@ var database *sql.DB
 
 const (
 	// TODO(remy):
-	CONN_STRING = `host=/var/run/postgresql sslmode=disable user=postgres`
+	CONN_STRING = `host=/var/run/postgresql sslmode=disable user=jose dbname=jose password=jose`
 )
 
 func Init() (*sql.DB, error) {

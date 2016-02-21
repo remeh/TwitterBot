@@ -38,7 +38,7 @@ func (reddit RedditContent) callAPI() ([]Content, error) {
 	doc.Find(".link").Each(func(i int, selec *goquery.Selection) {
 		// ignore sticky posts
 		if selec.HasClass("stickied") {
-			continue
+			return
 		}
 
 		if len(rv) > 20 {
