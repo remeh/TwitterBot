@@ -50,7 +50,7 @@ func (reddit RedditContent) callAPI() ([]Content, error) {
 		externalLink, _ := l.Attr("href")
 
 		rv = append(rv, Content{
-			Text: "https://reddit.com" + title,
+			Text: title,
 			Url:  externalLink,
 		})
 	})
