@@ -36,8 +36,12 @@ func (reddit RedditContent) callAPI() ([]Content, error) {
 	rv := make([]Content, 0)
 
 	doc.Find(".link").Each(func(i int, selec *goquery.Selection) {
-		// wow wow WOW! CALM DOWN!
-		if len(rv) > 10 {
+		// ignore sticky posts
+		if selec.HasClass("stickied") {
+			continue
+		}
+
+		if len(rv) > 20 {
 			return
 		}
 
@@ -46,7 +50,7 @@ func (reddit RedditContent) callAPI() ([]Content, error) {
 		externalLink, _ := l.Attr("href")
 
 		rv = append(rv, Content{
-			Text: title,
+			Text: "https://reddit.com" + title,
 			Url:  externalLink,
 		})
 	})
