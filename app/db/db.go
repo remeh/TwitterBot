@@ -24,8 +24,7 @@ import (
 var database *sql.DB
 
 const (
-	// TODO(remy):
-	CONN_STRING = `host=/var/run/postgresql sslmode=disable user=jose dbname=jose password=jose`
+	CONN_STRING = `host=/var/run/postgresql sslmode=disable user=postgres`
 )
 
 func Init() (*sql.DB, error) {
