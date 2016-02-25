@@ -28,12 +28,12 @@ import (
 )
 
 const (
-	_FOLLOW     = iota
-	_UNFOLLOW   = iota
-	_FAVORITE   = iota
-	_UNFAVORITE = iota
-	_TWEET      = iota
-	_REPLY      = iota
+	_FOLLOW = iota
+	_UNFOLLOW
+	_FAVORITE
+	_UNFAVORITE
+	_TWEET
+	_REPLY
 )
 
 type Action struct {
@@ -343,17 +343,35 @@ func actionTweet() {
 	}
 
 	if hasReachLimit {
-		fmt.Println("Day tweet limit reached, abording")
+		fmt.Println("Day tweet limit reached, aborting")
 		return
 	}
 
 	content, err := content.GenerateTweetContent()
+
 	if err != nil {
 		fmt.Println("Error while getting tweet content : ", err)
 		return
 	}
 
-	tweetText := content.Text + " " + content.Url + content.Hashtags
+	tweetText := ""
+	// intro or not ?
+	if yesorno() {
+		tweetText := fmt.Sprintf(buildIntro()+content.Hashtags, content.Text+" "+content.Url)
+		if len(tweetText) > 140 {
+			// too large, try without hashtags
+			tweetText := fmt.Sprintf(buildIntro(), content.Text+" "+content.Url)
+			if len(tweetText) > 140 {
+				// still too large, cancel
+				tweetText = ""
+			}
+		}
+	}
+
+	// no intro or intro didn't succeed
+	if len(tweetText) == 0 {
+		tweetText = content.Text + " " + content.Url + content.Hashtags
+	}
 
 	err = db.Tweet{Content: tweetText, Date: time.Now()}.Persist()
 	if err != nil {

@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/jsgoecke/go-wit"
@@ -30,6 +31,10 @@ const (
 	INTENT_NICE_ARTICLE = "nice_article"
 	INTENT_THANK_FOLLOW = "thank_follow"
 )
+
+func init() {
+	rand.Seed(time.Now().Unix())
+}
 
 func buildReply(tweet anaconda.Tweet) (string, error) {
 	message := cleanTweetMessage(tweet.Text)
@@ -109,6 +114,57 @@ func buildThanksFollowIntentResponse(tweet anaconda.Tweet) string {
 
 		return buildMention(tweet.User, greet+" "+thank+" for "+message)
 	}
+}
+
+func buildIntro() string {
+	surprise := []string{"wow", "hey", "", "hm", "hum", "!!", "wao", "awesome", "nice"}
+	personal := []string{"that is", "this is", "it's", "i think that it's", "is it", "it's me or it is", "i'm the only one who thinks that it is", "i'm the only one who thinks this is"}
+	adj := []string{"awesome", "really awesome", "impressive", "great", "nice", "very nice", "neat", "very well done", "very great", "so great", "really great", "so cool", "really cool", "very cool", "so nice"}
+	separators := []string{".", "!", "!!", ",", " "}
+
+	rv := ""
+
+	if yesorno() {
+		rv += randomCapitalize(randomStr(surprise))
+
+		if yesorno() {
+			rv += randomStr(separators)
+		} else {
+			rv += " "
+		}
+	}
+
+	if yesorno() {
+		rv += randomCapitalize(randomStr(personal)) + " "
+	}
+
+	rv += randomCapitalize(randomStr(adj))
+
+	if yesorno() {
+		rv += randomStr(separators) + " "
+	} else {
+		rv += " "
+	}
+
+	return rv
+}
+
+func randomCapitalize(str string) string {
+	if yesorno() {
+		if len(str) > 1 {
+			return strings.ToUpper(str[:1]) + strings.ToLower(str[1:])
+		}
+	}
+	return str
+}
+
+func yesorno() bool {
+	return rand.Int()%2 == 0
+}
+
+func randomStr(values []string) string {
+	r := rand.Int() % len(values)
+	return values[r]
 }
 
 func buildMention(user anaconda.User, text string) string {
