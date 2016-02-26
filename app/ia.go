@@ -137,7 +137,7 @@ func buildIntro() string {
 		rv += randomCapitalize(randomStr(personal)) + " "
 	}
 
-	if len(strings.Trim(rv, " ")) != 0 {
+	if len(strings.Trim(rv, " ")) == 0 {
 		rv += randomCapitalize(randomStr(adj))
 	} else {
 		rv += randomStr(adj)
