@@ -357,11 +357,12 @@ func actionTweet() {
 	tweetText := ""
 	// intro or not ?
 	if yesorno() {
-		tweetText = fmt.Sprintf(buildIntro()+content.Hashtags, content.Text+" "+content.Url)
+		intro := buildIntro()
+		tweetText = fmt.Sprintf(intro+` "%s" `+content.Hashtags, content.Text+" "+content.Url)
 		fmt.Println("Trying with intro:", tweetText)
 		if len(tweetText) > 140 {
 			// too large, try without hashtags
-			tweetText = fmt.Sprintf(buildIntro(), content.Text+" "+content.Url)
+			tweetText = fmt.Sprintf(intro+` "%s"`, content.Text+" "+content.Url)
 			fmt.Println("Too large, trying without hashtags:", tweetText)
 			if len(tweetText) > 140 {
 				// still too large, cancel
