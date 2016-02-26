@@ -138,12 +138,14 @@ func buildIntro() string {
 		rv += randomCapitalize(randomStr(personal)) + " "
 	}
 
-	rv += randomCapitalize(randomStr(adj))
+	if len(rv) == 0 {
+		rv += randomCapitalize(randomStr(adj))
+	} else {
+		rv += randomStr(adj)
+	}
 
 	if yesorno() {
-		rv += randomStr(separators) + " "
-	} else {
-		rv += " "
+		rv += randomStr(separators)
 	}
 
 	return rv
