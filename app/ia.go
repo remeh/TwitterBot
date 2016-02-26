@@ -119,25 +119,25 @@ func buildIntro() string {
 	surprise := []string{"wow", "hey", "huh", "hm", "hum", "huhu", "wao", "awesome", "nice"}
 	personal := []string{"that is", "this is", "it's", "i think that it's", "is it", "it's me or it is", "i'm the only one who thinks that it is", "i'm the only one who thinks this is"}
 	adj := []string{"awesome", "really awesome", "impressive", "great", "nice", "very nice", "neat", "very well done", "very great", "so great", "really great", "so cool", "really cool", "very cool", "so nice"}
-	separators := []string{".", "!", "!!", ",", " "}
+	separators := []string{".", "!", "!!", "..."}
 
 	rv := ""
 
 	if yesorno() {
-		rv += randomCapitalize(randomStr(surprise))
+		rv += randomUpper(randomCapitalize(randomStr(surprise)))
 
 		if yesorno() {
 			rv += randomStr(separators)
-		} else {
-			rv += " "
 		}
+
+		rv += " "
 	}
 
 	if yesorno() {
 		rv += randomCapitalize(randomStr(personal)) + " "
 	}
 
-	if len(strings.Trim(rv, " ")) == 0 {
+	if len(strings.Trim(rv, " ")) != 0 {
 		rv += randomCapitalize(randomStr(adj))
 	} else {
 		rv += randomStr(adj)
@@ -148,6 +148,13 @@ func buildIntro() string {
 	}
 
 	return rv
+}
+
+func randomUpper(str string) string {
+	if yesorno() {
+		return strings.ToUpper(str)
+	}
+	return str
 }
 
 func randomCapitalize(str string) string {
