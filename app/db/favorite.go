@@ -37,6 +37,10 @@ const (
 	_TABLE_FAVORITE = "favorite"
 )
 
+func (fav Favorite) Id() int {
+	return fav.id
+}
+
 func (fav Favorite) Persist() error {
 	var stmtIns *sql.Stmt
 	var err error

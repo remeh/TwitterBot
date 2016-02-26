@@ -325,7 +325,7 @@ func actionUnfavorite() {
 
 		_, err = api.Unfavorite(fav.TweetId)
 		if err != nil {
-			fmt.Println("Error while querying API to unfav : "+fav.Status, err)
+			fmt.Println("Error while querying API to unfav, tweetId["+fav.Status+"] id["+strconv.Itoa(fav.Id())+"]", err)
 			continue
 		}
 
@@ -357,12 +357,15 @@ func actionTweet() {
 	tweetText := ""
 	// intro or not ?
 	if yesorno() {
-		tweetText := fmt.Sprintf(buildIntro()+content.Hashtags, content.Text+" "+content.Url)
+		tweetText = fmt.Sprintf(buildIntro()+content.Hashtags, content.Text+" "+content.Url)
+		fmt.Println("Trying with intro:", tweetText)
 		if len(tweetText) > 140 {
 			// too large, try without hashtags
-			tweetText := fmt.Sprintf(buildIntro(), content.Text+" "+content.Url)
+			tweetText = fmt.Sprintf(buildIntro(), content.Text+" "+content.Url)
+			fmt.Println("Too large, trying without hashtags:", tweetText)
 			if len(tweetText) > 140 {
 				// still too large, cancel
+				fmt.Println("Too large. Canceling custom introduction.")
 				tweetText = ""
 			}
 		}
