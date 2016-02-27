@@ -18,6 +18,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -69,6 +70,8 @@ func main() {
 
 	ticker := time.NewTicker(d)
 
+	log.Println("Hello world.")
+
 	// do a first launch for immediate action before starting the ticker
 	bot()
 
@@ -79,7 +82,7 @@ func main() {
 }
 
 func bot() {
-	fmt.Println("----------- Waking up!")
+	log.Println("----------- Waking up!")
 
 	hour := time.Now().Hour()
 
@@ -91,5 +94,5 @@ func bot() {
 		performNightlyAction()
 	}
 
-	fmt.Println("----------- Goes to sleep")
+	log.Println("----------- Goes to sleep")
 }

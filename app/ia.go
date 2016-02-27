@@ -17,7 +17,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -59,7 +59,7 @@ func buildReply(tweet anaconda.Tweet) (string, error) {
 	outcome := result.Outcomes[0]
 	intent := outcome.Intent
 	if outcome.Confidence < 0.5 {
-		fmt.Println("Not enough confidence for intent : " + intent)
+		log.Println("Not enough confidence for intent : " + intent)
 		return "", nil
 	}
 

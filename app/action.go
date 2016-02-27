@@ -20,6 +20,7 @@ import (
 	"./content"
 	"./db"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/url"
 	"strconv"
@@ -99,72 +100,72 @@ func selectAndPerformAction(actions []Action) {
 }
 
 func actionFollow() {
-	fmt.Println("Action follow")
+	log.Println("Action follow")
 
 	search, v := generateAPISearchValues(KEYWORDS[rand.Intn(len(KEYWORDS))])
 
 	searchResult, err := api.GetSearch(search, v)
 	if err != nil {
-		fmt.Println("Error while querying twitter API", err)
+		log.Println("Error while querying twitter API", err)
 		return
 	}
 
 	for _, tweet := range searchResult.Statuses {
 		if !isUserAcceptable(tweet) {
-			fmt.Println("Ignoring user for follow : @" + tweet.User.ScreenName)
+			log.Println("Ignoring user for follow : @" + tweet.User.ScreenName)
 			continue
 		}
 
 		if isMentionOrRT(tweet) {
-			fmt.Println("Ignoring tweet for follow, mention or RT")
+			log.Println("Ignoring tweet for follow, mention or RT")
 			continue
 		}
 
 		if isMe(tweet) {
-			fmt.Println("Ignoring my own tweet for follow")
+			log.Println("Ignoring my own tweet for follow")
 			continue
 		}
 
 		follow, err := db.AlreadyFollow(tweet.User.Id)
 		if err != nil {
-			fmt.Println("Error while checking if already follow")
+			log.Println("Error while checking if already follow")
 			return
 		}
 
 		if follow {
-			fmt.Println("Ignoring user for follow, already follow @" + tweet.User.ScreenName)
+			log.Println("Ignoring user for follow, already follow @" + tweet.User.ScreenName)
 			continue
 		}
 
 		alreadyFollowMe, err := isUserFollowing(tweet.User.ScreenName)
 		if err != nil {
-			fmt.Println("Error while checking user already follow:", err.Error())
+			log.Println("Error while checking user already follow:", err.Error())
 			return
 		}
 
 		if alreadyFollowMe {
-			fmt.Println("Ignoring user @" + tweet.User.ScreenName + " for follow cause he already follow us")
+			log.Println("Ignoring user @" + tweet.User.ScreenName + " for follow cause he already follow us")
 			continue
 		}
 
 		err = db.Follow{UserId: tweet.User.Id, UserName: tweet.User.ScreenName, Status: tweet.Text, FollowDate: time.Now()}.Persist()
 		if err != nil {
-			fmt.Println("Error while persisting follow", err)
+			log.Println("Error while persisting follow", err)
 			return
 		}
 
 		_, err = api.FollowUser(tweet.User.ScreenName)
 		if err != nil {
-			fmt.Println("Error while following user "+tweet.User.ScreenName+" : ", err)
+			log.Println("Error while following user "+tweet.User.ScreenName+" : ", err)
 		}
 
-		fmt.Println("Now follow ", tweet.User.ScreenName)
+		log.Println("Now follow ", tweet.User.ScreenName)
 		return
 	}
 }
 
 func actionUnfollow() {
-	fmt.Println("Action unfollow")
+	log.Println("Action unfollow")
 
 	date := time.Now()
 	duration, err := time.ParseDuration("-72h") // -3 days
@@ -172,7 +173,7 @@ func actionUnfollow() {
 
 	follows, err := db.GetNotUnfollowed(date, UNFOLLOW_LIMIT_IN_A_ROW)
 	if err != nil {
-		fmt.Println("Error while querying db to find people to unfollow", err)
+		log.Println("Error while querying db to find people to unfollow", err)
 		return
 	}
 
@@ -181,14 +182,14 @@ func actionUnfollow() {
 
 		isFollowing, err := isUserFollowing(follow.UserName)
 		if err != nil {
-			fmt.Println("Error while querying API for friendships", err)
+			log.Println("Error while querying API for friendships", err)
 			return
 		}
 
 		if isFollowing {
 			err = follow.Persist()
 			if err != nil {
-				fmt.Println("Error while persisting follow", err)
+				log.Println("Error while persisting follow", err)
 				return
 			}
 
@@ -199,28 +200,28 @@ func actionUnfollow() {
 
 		err = follow.Persist()
 		if err != nil {
-			fmt.Println("Error while persisting follow", err)
+			log.Println("Error while persisting follow", err)
 			return
 		}
 
 		_, err = api.UnfollowUser(follow.UserName)
 		if err != nil {
-			fmt.Println("Error while querying API to unfollow @"+follow.UserName, err)
+			log.Println("Error while querying API to unfollow @"+follow.UserName, err)
 			continue
 		}
 
-		fmt.Println("Unfollowed @" + follow.UserName)
+		log.Println("Unfollowed @" + follow.UserName)
 	}
 }
 
 func actionFavorite() {
-	fmt.Println("Action fav")
+	log.Println("Action fav")
 
 	search, v := generateAPISearchValues(KEYWORDS[rand.Intn(len(KEYWORDS))])
 
 	searchResult, err := api.GetSearch(search, v)
 	if err != nil {
-		fmt.Println("Error while querying twitter API", err)
+		log.Println("Error while querying twitter API", err)
 		return
 	}
 
@@ -231,40 +232,40 @@ func actionFavorite() {
 		}
 
 		if !isUserAcceptable(tweet) {
-			fmt.Println("Ignoring user for favorite : @" + tweet.User.ScreenName)
+			log.Println("Ignoring user for favorite : @" + tweet.User.ScreenName)
 			continue
 		}
 
 		if isMentionOrRT(tweet) {
-			fmt.Println("Ignoring tweet for favorite, mention or RT")
+			log.Println("Ignoring tweet for favorite, mention or RT")
 			continue
 		}
 
 		if isMe(tweet) {
-			fmt.Println("Ignoring my own tweet for favorite")
+			log.Println("Ignoring my own tweet for favorite")
 			continue
 		}
 
 		follow, err := db.AlreadyFollow(tweet.User.Id)
 		if err == nil && follow {
-			fmt.Println("Ignoring tweet for favorite, already follow @" + tweet.User.ScreenName)
+			log.Println("Ignoring tweet for favorite, already follow @" + tweet.User.ScreenName)
 			continue
 		}
 
 		alreadyFav, err := db.HasAlreadyFav(tweet.Id)
 		if err != nil {
-			fmt.Println("Error while checking already fav", err)
+			log.Println("Error while checking already fav", err)
 			return
 		}
 
 		if alreadyFav {
-			fmt.Println("Ignoring tweet for favorite, already fav tweet from @" + tweet.User.ScreenName)
+			log.Println("Ignoring tweet for favorite, already fav tweet from @" + tweet.User.ScreenName)
 			continue
 		}
 
 		err = db.Favorite{UserId: tweet.User.Id, UserName: tweet.User.ScreenName, TweetId: tweet.Id, Status: tweet.Text, FavDate: time.Now()}.Persist()
 		if err != nil {
-			fmt.Println("Error while persisting fav", err)
+			log.Println("Error while persisting fav", err)
 			return
 		}
 
@@ -274,9 +275,9 @@ func actionFavorite() {
 				continue
 			}
 
-			fmt.Println("Error while favoriting tweet", err)
+			log.Println("Error while favoriting tweet", err)
 		} else {
-			fmt.Println("Just favorited tweet : ", tweet.Text)
+			log.Println("Just favorited tweet : ", tweet.Text)
 		}
 
 		i++
@@ -284,7 +285,7 @@ func actionFavorite() {
 }
 
 func actionUnfavorite() {
-	fmt.Println("Action unfavorite")
+	log.Println("Action unfavorite")
 
 	date := time.Now()
 	duration, err := time.ParseDuration("-72h") // -3 days
@@ -292,7 +293,7 @@ func actionUnfavorite() {
 
 	favs, err := db.GetNotUnfavorite(date, UNFAVORITE_LIMIT_IN_A_ROW)
 	if err != nil {
-		fmt.Println("Error while querying db to find tweet to unfav", err)
+		log.Println("Error while querying db to find tweet to unfav", err)
 		return
 	}
 
@@ -301,13 +302,13 @@ func actionUnfavorite() {
 
 		isFollowing, err := isUserFollowing(fav.UserName)
 		if err != nil {
-			fmt.Println("Error while querying API for friendships", err)
+			log.Println("Error while querying API for friendships", err)
 			return
 		}
 
 		if isFollowing {
 			if err := fav.Persist(); err != nil {
-				fmt.Println("Error while persisting fav", err)
+				log.Println("Error while persisting fav", err)
 				return
 			}
 			continue
@@ -315,37 +316,37 @@ func actionUnfavorite() {
 
 		fav.UnfavDate = time.Now()
 		if err := fav.Unfav(); err != nil {
-			fmt.Println("Error while persisting fav", err)
+			log.Println("Error while persisting fav", err)
 			return
 		}
 
 		if _, err := api.Unfavorite(fav.TweetId); err != nil {
-			fmt.Printf("Error while querying API to unfav, tweetId[%d] id[%d] : %s\n", fav.TweetId, fav.Id(), err)
+			log.Printf("Error while querying API to unfav, tweetId[%d] id[%d] : %s\n", fav.TweetId, fav.Id(), err)
 			continue
 		}
 
-		fmt.Println("Unfaved @" + fav.Status)
+		log.Println("Unfaved @" + fav.Status)
 	}
 }
 
 func actionTweet() {
-	fmt.Println("Action tweet")
+	log.Println("Action tweet")
 
 	hasReachLimit, err := hasReachDailyTweetLimit()
 	if err != nil {
-		fmt.Println("Error while getting daily limit reached", err)
+		log.Println("Error while getting daily limit reached", err)
 		return
 	}
 
 	if hasReachLimit {
-		fmt.Println("Day tweet limit reached, aborting")
+		log.Println("Day tweet limit reached, aborting")
 		return
 	}
 
 	content, err := content.GenerateTweetContent()
 
 	if err != nil {
-		fmt.Println("Error while getting tweet content : ", err)
+		log.Println("Error while getting tweet content : ", err)
 		return
 	}
 
@@ -354,14 +355,14 @@ func actionTweet() {
 	if yesorno() {
 		intro := buildIntro()
 		tweetText = fmt.Sprintf(intro+` "%s"`+content.Hashtags, content.Text+" "+content.Url)
-		fmt.Println("Trying with intro:", tweetText)
+		log.Println("Trying with intro:", tweetText)
 		if len(tweetText) > 140 {
 			// too large, try without hashtags
 			tweetText = fmt.Sprintf(intro+` "%s"`, content.Text+" "+content.Url)
-			fmt.Println("Too large, trying without hashtags:", tweetText)
+			log.Println("Too large, trying without hashtags:", tweetText)
 			if len(tweetText) > 140 {
 				// still too large, cancel
-				fmt.Println("Too large. Canceling custom introduction.")
+				log.Println("Too large. Canceling custom introduction.")
 				tweetText = ""
 			}
 		}
@@ -374,25 +375,25 @@ func actionTweet() {
 
 	err = db.Tweet{Content: tweetText, Date: time.Now()}.Persist()
 	if err != nil {
-		fmt.Println("Error while persisting tweet", err)
+		log.Println("Error while persisting tweet", err)
 		return
 	}
 
 	tweet, err := api.PostTweet(tweetText, nil)
 	if err != nil {
-		fmt.Println("Error while posting tweet", err)
+		log.Println("Error while posting tweet", err)
 		return
 	}
 
-	fmt.Println("Tweet posted : ", tweet.Text)
+	log.Println("Tweet posted : ", tweet.Text)
 }
 
 func actionReply() {
-	fmt.Println("Action reply")
+	log.Println("Action reply")
 
 	tweets, err := api.GetMentionsTimeline(nil)
 	if err != nil {
-		fmt.Println("Error while querying twitter mention API", err)
+		log.Println("Error while querying twitter mention API", err)
 		return
 	}
 
@@ -400,17 +401,17 @@ func actionReply() {
 
 		replied, err := db.HasAlreadyReplied(tweet.Id)
 		if err == nil && !replied {
-			fmt.Println("Building reply for tweet : " + tweet.Text)
+			log.Println("Building reply for tweet : " + tweet.Text)
 
 			response, err := buildReply(tweet)
 			if err != nil {
-				fmt.Println("Error while building reply", err)
+				log.Println("Error while building reply", err)
 				return
 			}
 
 			err = db.Reply{UserId: tweet.User.Id, UserName: tweet.User.ScreenName, TweetId: tweet.Id, Status: tweet.Text, Answer: response, ReplyDate: time.Now()}.Persist()
 			if err != nil {
-				fmt.Println("Error while persisting reply", err)
+				log.Println("Error while persisting reply", err)
 				return
 			}
 
@@ -420,18 +421,18 @@ func actionReply() {
 
 				respTweet, err := api.PostTweet(response, v)
 				if err != nil {
-					fmt.Println("Error while posting reply", err)
+					log.Println("Error while posting reply", err)
 					return
 				}
 
-				fmt.Println("Reply posted : ", respTweet.Text)
+				log.Println("Reply posted : ", respTweet.Text)
 			} else {
-				fmt.Println("No response found for tweet : " + tweet.Text)
+				log.Println("No response found for tweet : " + tweet.Text)
 			}
 
 			return
 		}
 	}
 
-	fmt.Println("Nothing to reply found :(")
+	log.Println("Nothing to reply found :(")
 }
