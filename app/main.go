@@ -25,7 +25,6 @@ import (
 	"./db"
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/jsgoecke/go-wit"
-	"github.com/robfig/cron"
 )
 
 var api *anaconda.TwitterApi
@@ -59,19 +58,21 @@ func main() {
 	// Init WIT api
 	witclient = wit.NewClient(WIT_ACCESS_TOKEN)
 
-	// Init cron
-	c := cron.New()
-	c.AddFunc(ACTIONS_INTERVAL, bot)
-	c.Start()
-
 	// Init random
 	rand.Seed(time.Now().UnixNano())
 
-	fmt.Println("Hello world")
+	// Starts the wake up ticker
+	var d time.Duration
+	if d, err = time.ParseDuration(ACTIONS_INTERVAL); err != nil {
+		panic(fmt.Sprintf("Can't parse as duration the ACTIONS_INTERVAL config value: %s", ACTIONS_INTERVAL))
+	}
 
-	bot()
+	ticker := time.NewTicker(d)
 
-	select {} // block forever
+	// wake up and go to sleep forever ever and never. tintintin.
+	for range ticker.C {
+		bot()
+	}
 }
 
 func bot() {
