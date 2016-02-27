@@ -73,7 +73,7 @@ func (fav Favorite) Persist() error {
 func (fav *Favorite) Unfav() error {
 	q := "UPDATE " + _TABLE_FAVORITE + " SET unfavdate = $1, lastaction = $2 WHERE id = $3"
 
-	if _, err := database.Exec(q, fav.UnfavDate, fav.LastAction, fav.Id); err != nil {
+	if _, err := database.Exec(q, fav.UnfavDate, fav.LastAction, fav.Id()); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func HasAlreadyFav(tweetId int64) (bool, error) {
 func GetNotUnfavorite(maxFavDate time.Time, limit int) ([]Favorite, error) {
 	favs := make([]Favorite, 0)
 
-	stmtOut, err := database.Prepare("SELECT " + _FAV_FIELDS + " FROM " + _TABLE_FAVORITE + " WHERE unfavdate IS NULL AND favdate <= $1 ORDER BY lastaction LIMIT $2")
+	stmtOut, err := database.Prepare("SELECT DISTINCT " + _FAV_FIELDS + " FROM " + _TABLE_FAVORITE + " WHERE unfavdate IS NULL AND favdate <= $1 ORDER BY lastaction LIMIT $2")
 	if err != nil {
 		return favs, err
 	}
