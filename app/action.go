@@ -306,26 +306,21 @@ func actionUnfavorite() {
 		}
 
 		if isFollowing {
-			err = fav.Persist()
-			if err != nil {
+			if err := fav.Persist(); err != nil {
 				fmt.Println("Error while persisting fav", err)
 				return
 			}
-
 			continue
 		}
 
 		fav.UnfavDate = time.Now()
-
-		err = fav.Persist()
-		if err != nil {
+		if err := fav.Unfav(); err != nil {
 			fmt.Println("Error while persisting fav", err)
 			return
 		}
 
-		_, err = bite.Unfavorite(fav.TweetId)
-		if err != nil {
-			fmt.Println("Error while querying API to unfav, tweetId["+fav.Status+"] id["+strconv.Itoa(fav.Id())+"]", err)
+		if _, err := bite.Unfavorite(fav.TweetId); err != nil {
+			fmt.Printf("Error while querying API to unfav, tweetId[%d] id[%d] : %s\n", fav.TweetId, fav.Id(), err)
 			continue
 		}
 

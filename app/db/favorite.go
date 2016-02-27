@@ -36,6 +36,7 @@ type Favorite struct {
 
 const (
 	_TABLE_FAVORITE = "favorite"
+	_FAV_FIELDS     = ` id,userid,username,tweetid,status,favdate,unfavdate,lastaction `
 )
 
 func (fav Favorite) Id() int {
@@ -47,9 +48,9 @@ func (fav Favorite) Persist() error {
 	var err error
 
 	if fav.id == 0 {
-		stmtIns, err = database.Prepare("INSERT INTO " + _TABLE_FAVORITE + "(userId, userName, tweetId, status, favDate, unfavDate, lastAction) VALUES( $1, $2, $3, $4, $5, $6, $7 )")
+		stmtIns, err = database.Prepare("INSERT INTO " + _TABLE_FAVORITE + "(userid, username, tweetid, status, favdate, unfavdate, lastaction) VALUES( $1, $2, $3, $4, $5, $6, $7 )")
 	} else {
-		stmtIns, err = database.Prepare("UPDATE " + _TABLE_FAVORITE + " SET userId = $1, userName = $2, tweetId = $3, status = $4, favDate = $5, unfavDate = $6, lastAction = $7 WHERE id = $8")
+		stmtIns, err = database.Prepare("UPDATE " + _TABLE_FAVORITE + " SET userid = $1, username = $2, tweetid = $3, status = $4, favdate = $5, unfavdate = $6, lastaction = $7 WHERE id = $8")
 	}
 
 	if err != nil {
@@ -69,8 +70,18 @@ func (fav Favorite) Persist() error {
 	return err
 }
 
+func (fav *Favorite) Unfav() error {
+	q := "UPDATE " + _TABLE_FAVORITE + " SET unfavdate = $1, lastaction = $2 WHERE id = $3"
+
+	if _, err := database.Exec(q, fav.UnfavDate, fav.LastAction, fav.Id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func HasAlreadyFav(tweetId int64) (bool, error) {
-	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_FAVORITE + " WHERE tweetId = $1 LIMIT 1")
+	stmtOut, err := database.Prepare("SELECT count(*) FROM " + _TABLE_FAVORITE + " WHERE tweetid = $1 LIMIT 1")
 	if err != nil {
 		return true, err
 	}
@@ -90,7 +101,7 @@ func HasAlreadyFav(tweetId int64) (bool, error) {
 func GetNotUnfavorite(maxFavDate time.Time, limit int) ([]Favorite, error) {
 	favs := make([]Favorite, 0)
 
-	stmtOut, err := database.Prepare("SELECT * FROM " + _TABLE_FAVORITE + " WHERE unfavDate IS NULL AND favDate <= $1 ORDER BY lastAction LIMIT $2")
+	stmtOut, err := database.Prepare("SELECT " + _FAV_FIELDS + " FROM " + _TABLE_FAVORITE + " WHERE unfavdate IS NULL AND favdate <= $1 ORDER BY lastaction LIMIT $2")
 	if err != nil {
 		return favs, err
 	}
