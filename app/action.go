@@ -103,7 +103,7 @@ func actionFollow() {
 
 	search, v := generateAPISearchValues(KEYWORDS[rand.Intn(len(KEYWORDS))])
 
-	searchResult, err := bite.GetSearch(search, v)
+	searchResult, err := api.GetSearch(search, v)
 	if err != nil {
 		fmt.Println("Error while querying twitter API", err)
 		return
@@ -153,7 +153,7 @@ func actionFollow() {
 			return
 		}
 
-		_, err = bite.FollowUser(tweet.User.ScreenName)
+		_, err = api.FollowUser(tweet.User.ScreenName)
 		if err != nil {
 			fmt.Println("Error while following user "+tweet.User.ScreenName+" : ", err)
 		}
@@ -203,7 +203,7 @@ func actionUnfollow() {
 			return
 		}
 
-		_, err = bite.UnfollowUser(follow.UserName)
+		_, err = api.UnfollowUser(follow.UserName)
 		if err != nil {
 			fmt.Println("Error while querying API to unfollow @"+follow.UserName, err)
 			continue
@@ -218,7 +218,7 @@ func actionFavorite() {
 
 	search, v := generateAPISearchValues(KEYWORDS[rand.Intn(len(KEYWORDS))])
 
-	searchResult, err := bite.GetSearch(search, v)
+	searchResult, err := api.GetSearch(search, v)
 	if err != nil {
 		fmt.Println("Error while querying twitter API", err)
 		return
@@ -268,7 +268,7 @@ func actionFavorite() {
 			return
 		}
 
-		_, err = bite.Favorite(tweet.Id)
+		_, err = api.Favorite(tweet.Id)
 		if err != nil {
 			if strings.Contains(err.Error(), "139") { // Case of an already favorited tweet
 				continue
@@ -319,7 +319,7 @@ func actionUnfavorite() {
 			return
 		}
 
-		if _, err := bite.Unfavorite(fav.TweetId); err != nil {
+		if _, err := api.Unfavorite(fav.TweetId); err != nil {
 			fmt.Printf("Error while querying API to unfav, tweetId[%d] id[%d] : %s\n", fav.TweetId, fav.Id(), err)
 			continue
 		}
@@ -378,7 +378,7 @@ func actionTweet() {
 		return
 	}
 
-	tweet, err := bite.PostTweet(tweetText, nil)
+	tweet, err := api.PostTweet(tweetText, nil)
 	if err != nil {
 		fmt.Println("Error while posting tweet", err)
 		return
@@ -390,7 +390,7 @@ func actionTweet() {
 func actionReply() {
 	fmt.Println("Action reply")
 
-	tweets, err := bite.GetMentionsTimeline(nil)
+	tweets, err := api.GetMentionsTimeline(nil)
 	if err != nil {
 		fmt.Println("Error while querying twitter mention API", err)
 		return
@@ -418,7 +418,7 @@ func actionReply() {
 				v := url.Values{}
 				v.Add("in_reply_to_status_id", strconv.FormatInt(tweet.Id, 10))
 
-				respTweet, err := bite.PostTweet(response, v)
+				respTweet, err := api.PostTweet(response, v)
 				if err != nil {
 					fmt.Println("Error while posting reply", err)
 					return

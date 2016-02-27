@@ -28,14 +28,14 @@ import (
 	"github.com/robfig/cron"
 )
 
-var bite *anaconda.TwitterApi
+var api *anaconda.TwitterApi
 var witclient *wit.Client
 
 func main() {
 	// Init Twitter API
 	anaconda.SetConsumerKey(CONSUMER_KEY)
 	anaconda.SetConsumerSecret(CONSUMER_SECRET)
-	bite = anaconda.NewTwitterApi(TOKEN, TOKEN_SECRET)
+	api = anaconda.NewTwitterApi(TOKEN, TOKEN_SECRET)
 
 	// Init DB
 	database, err := db.Init()

@@ -35,7 +35,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func isUserFollowing(userName string) (bool, error) {
-	friendships, err := bite.GetFriendshipsLookup(url.Values{"screen_name": []string{userName}})
+	friendships, err := api.GetFriendshipsLookup(url.Values{"screen_name": []string{userName}})
 	if err != nil {
 		fmt.Println("Error while querying twitter api for friendships", err)
 		return false, err
