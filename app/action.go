@@ -351,6 +351,8 @@ func actionTweet() {
 	}
 
 	tweetText := ""
+	defaultText := content.Text + " " + content.Url + content.Hashtags
+
 	// intro or not ?
 	if yesorno() {
 		intro := buildIntro()
@@ -370,10 +372,11 @@ func actionTweet() {
 
 	// no intro or intro didn't succeed
 	if len(tweetText) == 0 {
-		tweetText = content.Text + " " + content.Url + content.Hashtags
+		tweetText = defaultText
 	}
 
-	err = db.Tweet{Content: tweetText, Date: time.Now()}.Persist()
+	// NOTE(remy): the content in db shouln't have the intro
+	err = db.Tweet{Content: defaultText, Date: time.Now()}.Persist()
 	if err != nil {
 		log.Println("Error while persisting tweet", err)
 		return
