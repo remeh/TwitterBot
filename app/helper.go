@@ -51,6 +51,15 @@ func isUserFollowing(userName string) (bool, error) {
 	return following, nil
 }
 
+func isTweetAcceptable(content string) bool {
+	for _, word := range BANNED_KEYWORDS {
+		if strings.Contains(content, word) {
+			return false
+		}
+	}
+	return true
+}
+
 func isUserAcceptable(tweet anaconda.Tweet) bool {
 	words := strings.Split(tweet.Text, " ")
 	for _, word := range words {
