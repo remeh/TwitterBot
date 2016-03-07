@@ -345,7 +345,7 @@ func actionTweet() {
 
 	content, err := content.GenerateTweetContent()
 
-	if !isTweetAcceptable(content) {
+	if !isTweetAcceptable(content.Text) {
 		log.Println("Won't tweet due to not acceptable:", content)
 		return
 	}
